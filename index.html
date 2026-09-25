@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>30-Din Home Fitness Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1b1a17;
+    --panel:#242220;
+    --panel-2:#2c2924;
+    --line:#3c382f;
+    --chalk:#f2eee3;
+    --muted:#a79e8e;
+    --effort:#e8592e;
+    --effort-dim:#7a3520;
+    --recovery:#8a9a76;
+    --recovery-dim:#414a37;
+    --warn:#d9a441;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--chalk);
+    font-family:'Inter',sans-serif;
+    padding:18px 14px 60px;
+    max-width:520px;
+    margin:0 auto;
+    min-height:100vh;
+  }
+  h1,h2,h3,.display{
+    font-family:'Oswald',sans-serif;
+    margin:0;
+    letter-spacing:0.2px;
+  }
+  .top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-bottom:14px;
+  }
+  .top h1{
+    font-size:20px;
+    font-weight:600;
+    color:var(--chalk);
+  }
+  .top .sub{
+    font-size:12.5px;
+    color:var(--muted);
+    margin-top:3px;
+  }
+  .progress-wrap{
+    margin-bottom:16px;
+  }
+  .progress-track{
+    height:6px;
+    background:var(--panel-2);
+    border-radius:4px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--effort);
+    width:0%;
+    transition:width .4s ease;
+  }
+  .progress-label{
+    font-size:11.5px;
+    color:var(--muted);
+    margin-top:6px;
+  }
+  .strip{
+    display:flex;
+    gap:7px;
+    overflow-x:auto;
+    padding:4px 2px 12px;
+    margin-bottom:6px;
+    scrollbar-width:none;
+  }
+  .strip::-webkit-scrollbar{display:none;}
+  .chip{
+    flex:0 0 auto;
+    width:42px;
+    height:52px;
+    border-radius:8px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    font-family:'Oswald',sans-serif;
+    color:var(--muted);
+    position:relative;
+  }
+  .chip .n{font-size:16px; font-weight:600; color:var(--chalk);}
+  .chip .d{font-size:9.5px; margin-top:1px; color:var(--muted);}
+  .chip.today{border-color:var(--effort);}
+  .chip.selected{background:var(--effort-dim); border-color:var(--effort);}
+  .chip.selected .n, .chip.selected .d{color:var(--chalk);}
+  .chip.done::after{
+    content:"✓";
+    position:absolute;
+    top:-6px; right:-4px;
+    width:16px;height:16px;
+    background:var(--recovery);
+    color:#1b1a17;
+    font-size:10px;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;
+  }
+  .jump{
+    text-align:right;
+    margin-bottom:14px;
+  }
+  .jump button{
+    background:none;
+    border:none;
+    color:var(--effort);
+    font-size:12px;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    cursor:pointer;
+    padding:4px 0;
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:18px 16px;
+    margin-bottom:14px;
+  }
+  .day-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:2px;
+  }
+  .day-head .big{
+    font-size:30px;
+    font-weight:700;
+    line-height:1;
+  }
+  .day-head .date{
+    font-size:12px;
+    color:var(--muted);
+    text-align:right;
+  }
+  .day-type{
+    display:inline-block;
+    margin-top:8px;
+    padding:4px 10px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:500;
+  }
+  .day-type.effort{background:var(--effort-dim); color:#ffcbb3;}
+  .day-type.recovery{background:var(--recovery-dim); color:#d9e2cc;}
+  .section-title{
+    font-size:12.5px;
+    color:var(--muted);
+    margin:18px 0 8px;
+    font-weight:600;
+  }
+  .item{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:9px 0;
+    border-bottom:1px solid var(--line);
+    cursor:pointer;
+  }
+  .item:last-child{border-bottom:none;}
+  .box{
+    flex:0 0 auto;
+    width:19px;height:19px;
+    border-radius:5px;
+    border:1.5px solid var(--muted);
+    margin-top:1px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;
+    color:transparent;
+  }
+  .item.checked .box{background:var(--recovery); border-color:var(--recovery); color:#1b1a17;}
+  .item.checked .txt{color:var(--muted); text-decoration:line-through;}
+  .txt{font-size:14.5px; line-height:1.4;}
+  .note{
+    background:var(--panel-2);
+    border-left:3px solid var(--effort);
+    padding:10px 12px;
+    border-radius:6px;
+    font-size:13px;
+    color:var(--chalk);
+    margin-top:10px;
+    line-height:1.45;
+  }
+  .tip{
+    font-size:13px;
+    color:var(--muted);
+    margin-top:10px;
+    line-height:1.45;
+  }
+  .warn-card{
+    background:#2e2416;
+    border:1px solid #5a4526;
+    border-radius:12px;
+    padding:14px 15px;
+    font-size:12.5px;
+    line-height:1.5;
+    color:#e8d7b0;
+  }
+  .warn-card b{color:var(--warn);}
+  footer{
+    text-align:center;
+    color:var(--muted);
+    font-size:11px;
+    margin-top:22px;
+  }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div>
+    <h1>30-Din Home Fitness Plan</h1>
+    <div class="sub">Chest define + pet kam + body improve — bina gym</div>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-label" id="progressLabel">Loading...</div>
+</div>
+
+<div class="strip" id="strip"></div>
+<div class="jump"><button id="jumpToday">Aaj wale din pe jao</button></div>
+
+<div class="card" id="dayCard"></div>
+
+<div class="warn-card">
+  <b>Dhyan rakhna:</b> Agar chest mein koi firm lump, dard/tenderness, nipple se discharge, ya tezi se badhti sujan mehsoos ho — usko exercise se theek karne ki koshish mat karo. Seedha doctor ko dikha do.
+</div>
+
+<footer>Roz thoda better — pichle din se compare karo, kisi aur se nahi.</footer>
+
+<script>
+const STORAGE_KEY = "fitness30-state-v1";
+const TOTAL_DAYS = 30;
+
+const weekdayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+const dietRules = [
+  "Har meal mein protein — eggs, dal, milk/curd, soy, paneer, chicken/fish",
+  "Cold drinks, excessive sweets, chips/fried snacks kam rakho",
+  "Normal ghar ka khana khao — bhooka rehna ya crash diet nahi",
+  "Paani adequate piyo — roughly 8-10 glass din mein"
+];
+
+const dietTips = [
+  "Aaj breakfast mein ek extra protein source add karo — ubla anda ya paneer.",
+  "Meetha mann kare to fruit try karo pehle, phir dekho zarurat hai ya nahi.",
+  "Dinner halka rakho, sone se 2 ghante pehle kha lo.",
+  "Curd/dahi ek acha daily protein + gut health source hai.",
+  "Fried snacks ki jagah roasted chana ya makhana try karo.",
+  "Din mein pani ka ek bottle target fix kar lo, track karna easy ho jata hai."
+];
+
+function pushupBlock(day){
+  if(day<=7){
+    return {
+      stage:"Week 1 — Foundation",
+      items:[
+        "Incline push-ups — 3×10-15 (table/sofa edge pe haath)",
+        "Negative knee push-ups — 3×5-6 (upar wali position se 5 second slow neeche jao)"
+      ],
+      note:"Knee push-up abhi force mat karo. Negative wale se eccentric strength banti hai jo normal knee push-up se pehle chahiye."
+    };
+  } else if(day<=14){
+    return {
+      stage:"Week 2 — Building",
+      items:[
+        "Negative knee push-ups — 3×6-8 (slow control neeche)",
+        "Partial-range knee push-ups — 3×5-8 (jitna range comfortably aaye)"
+      ],
+      note:"Full range zarurat nahi abhi — jitna neeche ja sako utna jao, dheere range badhao."
+    };
+  } else if(day<=21){
+    return {
+      stage:"Week 3 — Knee push-up range",
+      items:[
+        "Knee push-ups (full range) — 3×5-8",
+        "Incline push-ups — 2×10 (warm-up ke tarah)"
+      ],
+      note:"Ab full range knee push-up try karo. Form sahi rakho — hips high na ho, back seedha."
+    };
+  } else {
+    return {
+      stage:"Week 4 — Reps + full push-up attempt",
+      items:[
+        "Knee push-ups — 3×10-15",
+        "Full push-up attempt — 1-2 reps set ke end mein (optional, jitna ho utna)"
+      ],
+      note:"Reps badhao knee push-up mein. Full push-up 1-2 bhi lag jaye to bahut badi win hai — force mat karo."
+    };
+  }
+}
+
+function dayPlan(day, date){
+  const wd = date.getDay();
+  let type, label, exercises, isEffort;
+  if(wd===0){
+    type="rest"; label="Rest day"; isEffort=false;
+    exercises=["Normal walk — jitna comfortable lage","Halka stretching (optional)"];
+  } else if(wd===1){
+    type="chestFull"; label="Chest + full body"; isEffort=true;
+    exercises=["Squats — 3×12-15","Lunges — 2×10 each leg","Plank — 3×20-40 sec","Stretching — 5 min"];
+  } else if(wd===2){
+    type="light"; label="Light day"; isEffort=false;
+    exercises=["Walk — 30-40 min","Squats — 3×15","Plank — 3×20-40 sec","Stretching — 5 min"];
+  } else if(wd===3){
+    type="chestUpper"; label="Chest + upper body"; isEffort=true;
+    exercises=["Squats — 3×15","Plank — 3×20-40 sec","Stretching — 5 min"];
+  } else if(wd===4){
+    type="recovery"; label="Recovery day"; isEffort=false;
+    exercises=["Walk — 30-40 min","Stretching — 10 min"];
+  } else if(wd===5){
+    type="fullBodyChest"; label="Full body + chest"; isEffort=true;
+    exercises=["Squats — 3×15","Lunges — 3×10 each leg","Plank — 3×20-40 sec","Stretching — 5 min"];
+  } else {
+    type="longWalk"; label="Long walk day"; isEffort=false;
+    exercises=["Brisk walk — 40-45 min","Light stretching"];
+  }
+  const pushup = isEffort ? pushupBlock(day) : null;
+  return {type, label, isEffort, exercises, pushup};
+}
+
+let state = { startDate: null, days: {} };
+let selectedDay = 1;
+let startDate = null;
+let saveTimer = null;
+
+function fmtDate(d){
+  return weekdayNames[d.getDay()] + ", " + d.getDate() + " " + monthNames[d.getMonth()];
+}
+
+function buildItemIds(plan){
+  const ids = [];
+  plan.exercises.forEach((_,i)=>ids.push("w"+i));
+  if(plan.pushup) plan.pushup.items.forEach((_,i)=>ids.push("p"+i));
+  dietRules.forEach((_,i)=>ids.push("d"+i));
+  return ids;
+}
+
+function getDayChecks(day){
+  if(!state.days[day]) state.days[day] = {};
+  return state.days[day];
+}
+
+function isDayDone(day, plan){
+  const checks = getDayChecks(day);
+  const ids = buildItemIds(plan);
+  return ids.length>0 && ids.every(id=>checks[id]);
+}
+
+function renderStrip(){
+  const strip = document.getElementById("strip");
+  strip.innerHTML = "";
+  const todayDay = Math.floor((new Date().setHours(0,0,0,0) - startDate.setHours(0,0,0,0))/86400000) + 1;
+  for(let n=1;n<=TOTAL_DAYS;n++){
+    const d = new Date(startDate);
+    d.setDate(d.getDate() + (n-1));
+    const plan = dayPlan(n, d);
+    const chip = document.createElement("div");
+    chip.className = "chip";
+    if(n===todayDay) chip.classList.add("today");
+    if(n===selectedDay) chip.classList.add("selected");
+    if(isDayDone(n, plan)) chip.classList.add("done");
+    chip.innerHTML = '<div class="n">'+n+'</div><div class="d">'+weekdayNames[d.getDay()]+'</div>';
+    chip.addEventListener("click", ()=>{ selectedDay = n; renderAll(); });
+    strip.appendChild(chip);
+  }
+}
+
+function renderCard(){
+  const card = document.getElementById("dayCard");
+  const d = new Date(startDate);
+  d.setDate(d.getDate() + (selectedDay-1));
+  const plan = dayPlan(selectedDay, d);
+  const checks = getDayChecks(selectedDay);
+
+  let html = '';
+  html += '<div class="day-head"><div class="big">Day '+selectedDay+'</div><div class="date">'+fmtDate(d)+'</div></div>';
+  html += '<span class="day-type '+(plan.isEffort?"effort":"recovery")+'">'+plan.label+'</span>';
+
+  html += '<div class="section-title">Workout</div>';
+  plan.exercises.forEach((ex,i)=>{
+    const id = "w"+i;
+    const on = checks[id];
+    html += '<div class="item '+(on?"checked":"")+'" data-id="'+id+'"><div class="box">✓</div><div class="txt">'+ex+'</div></div>';
+  });
+
+  if(plan.pushup){
+    html += '<div class="section-title">Push-up progress — '+plan.pushup.stage+'</div>';
+    plan.pushup.items.forEach((ex,i)=>{
+      const id = "p"+i;
+      const on = checks[id];
+      html += '<div class="item '+(on?"checked":"")+'" data-id="'+id+'"><div class="box">✓</div><div class="txt">'+ex+'</div></div>';
+    });
+    html += '<div class="note">'+plan.pushup.note+'</div>';
+  }
+
+  html += '<div class="section-title">Diet aaj</div>';
+  dietRules.forEach((ex,i)=>{
+    const id = "d"+i;
+    const on = checks[id];
+    html += '<div class="item '+(on?"checked":"")+'" data-id="'+id+'"><div class="box">✓</div><div class="txt">'+ex+'</div></div>';
+  });
+  html += '<div class="tip">💡 '+dietTips[(selectedDay-1)%dietTips.length]+'</div>';
+
+  card.innerHTML = html;
+
+  card.querySelectorAll(".item").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      const id = el.getAttribute("data-id");
+      const c = getDayChecks(selectedDay);
+      c[id] = !c[id];
+      el.classList.toggle("checked", !!c[id]);
+      scheduleSave();
+      renderStrip();
+      renderProgress();
+    });
+  });
+}
+
+function renderProgress(){
+  let totalItems = 0, doneItems = 0;
+  for(let n=1;n<=TOTAL_DAYS;n++){
+    const d = new Date(startDate);
+    d.setDate(d.getDate() + (n-1));
+    const plan = dayPlan(n, d);
+    const ids = buildItemIds(plan);
+    const checks = getDayChecks(n);
+    totalItems += ids.length;
+    ids.forEach(id=>{ if(checks[id]) doneItems++; });
+  }
+  const pct = totalItems ? Math.round((doneItems/totalItems)*100) : 0;
+  document.getElementById("progressFill").style.width = pct+"%";
+  document.getElementById("progressLabel").textContent = pct+"% complete — "+doneItems+"/"+totalItems+" tasks";
+}
+
+function renderAll(){
+  renderStrip();
+  renderCard();
+  renderProgress();
+}
+
+function scheduleSave(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveState, 400);
+}
+
+async function saveState(){
+  try{
+    await window.storage.set(STORAGE_KEY, JSON.stringify(state), false);
+  }catch(e){
+    console.error("Save failed", e);
+  }
+}
+
+async function loadState(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY, false);
+    if(res && res.value){
+      const parsed = JSON.parse(res.value);
+      state.startDate = parsed.startDate;
+      state.days = parsed.days || {};
+    }
+  }catch(e){
+    // no existing state, fine
+  }
+  if(!state.startDate){
+    const today = new Date();
+    state.startDate = today.toISOString().slice(0,10);
+    await saveState();
+  }
+  startDate = new Date(state.startDate + "T00:00:00");
+  const todayDay = Math.floor((new Date().setHours(0,0,0,0) - new Date(startDate).setHours(0,0,0,0))/86400000) + 1;
+  selectedDay = Math.min(Math.max(todayDay,1), TOTAL_DAYS);
+  renderAll();
+}
+
+document.getElementById("jumpToday").addEventListener("click", ()=>{
+  const todayDay = Math.floor((new Date().setHours(0,0,0,0) - new Date(startDate).setHours(0,0,0,0))/86400000) + 1;
+  selectedDay = Math.min(Math.max(todayDay,1), TOTAL_DAYS);
+  renderAll();
+});
+
+loadState();
+</script>
+
+</body>
+</html>
